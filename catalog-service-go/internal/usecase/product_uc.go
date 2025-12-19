@@ -10,6 +10,10 @@ type ProductUseCase struct {
 }
 
 func (uc *ProductUseCase) ExecuteUpdate(id string, p *domain.Product) error {
+	// Ensure the productId is preserved even if not present in the payload
+	if p.ID == "" {
+		p.ID = id
+	}
 	if p.Price <= 0 {
 		return nil
 	}

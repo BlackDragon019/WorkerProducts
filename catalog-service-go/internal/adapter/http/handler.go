@@ -4,6 +4,7 @@ import (
 	"catalog-service/internal/domain"
 	"catalog-service/internal/usecase"
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -32,11 +33,13 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	var p domain.Product
 
 	if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
+		log.Printf("Create decode error: %v", err)
 		http.Error(w, "Datos inválida", http.StatusBadRequest)
 		return
 	}
 
 	if err := h.UC.ExecuteCreate(&p); err != nil {
+		log.Printf("Create usecase error: %v", err)
 		http.Error(w, err.Error(), http.StatusUnprocessableEntity)
 		return
 	}
@@ -70,4 +73,12 @@ func (h *Handler) GetAll(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(products)
+}
+
+// Customer endpoint (simple stub for testing/enrichment)
+func (h *Handler) GetCustomerByID(w http.ResponseWriter, r *http.Request) {
+	id := mux.Vars(r)["id"]
+	cust := domain.Customer{ID: id, Name: "Customer " + id, Active: true}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(cust)
 }
