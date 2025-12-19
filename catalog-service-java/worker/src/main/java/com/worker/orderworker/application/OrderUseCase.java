@@ -38,8 +38,7 @@ public class OrderUseCase {
         return lockService.tryLock(lockKey)
                 .flatMap(acquired -> {
                     if (!acquired) return Mono.empty();
-
-                    // First validate customer
+            
                     return catalogClient.getCustomer(message.getCustomerId())
                             .flatMap(customer -> {
                                 if (customer.getActive() == null || !customer.getActive()){
@@ -50,7 +49,7 @@ public class OrderUseCase {
                                         .flatMap(id -> catalogClient.getProduct(id))
                                         .collectList()
                                         .flatMap(products -> {
-                                            // Validate that all products were found
+                                            // Validamos los productos obtenidos
                                             if (products == null || products.size() != message.getProductIds().size()){
                                                 return handleFailure(message);
                                             }

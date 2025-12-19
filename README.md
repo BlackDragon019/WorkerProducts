@@ -18,6 +18,9 @@ Este repositorio contiene un *worker* en Java que consume mensajes de Kafka, enr
 3. Puedes crear productos en la API Go:
    ```bash
    curl -X POST -H "Content-Type: application/json" http://localhost:8081/api/v1/products -d '{"productId":"p1","name":"Laptop","price":999}'
+
+   ```PowerShell
+   Invoke-RestMethod -Uri 'http://localhost:8081/api/v1/products' -Method Post -ContentType 'application/json' -Body '{"productId":"p1","name":"Laptop","price":1199}'
    ```
 4. Enviar un mensaje de prueba a Kafka (por ejemplo usando kafka-console-producer o una herramienta):
    Topic: orders-topic
@@ -27,6 +30,11 @@ Este repositorio contiene un *worker* en Java que consume mensajes de Kafka, enr
    ```
 
 ## Notas
-- Reintentos exponenciales en las llamadas a APIs se implementan con Reactor `Retry.backoff`.
-- Mensajes fallidos se almacenan en Redis con contador de intentos; si exceden `order.max-retries` quedan en "dead-letter" (impresión en logs actualmente).
+- Ver lista de productos:
+Navegador: http://localhost:8081/api/v1/products
 
+- Consultar MongoDB directamente (mongosh)
+- Conéctate al contenedor de Mongo y consulta la colección:
+docker exec -it mongodb-worker mongosh --eval "db.getSiblingDB('orders_db').orders_processed.find({orderId:'order-e2e-5'}).pretty()"
+- También puedes listar todas:
+docker exec -it mongodb-worker mongosh --eval "db.getSiblingDB('orders_db').orders_processed.find().limit(10).pretty()"
