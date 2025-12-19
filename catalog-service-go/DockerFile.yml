@@ -1,0 +1,19 @@
+# 1. Imagen base de Go para compilar
+FROM golang:1.25.5-alpine AS builder
+WORKDIR /app
+# Copiamos archivos de dependencias
+COPY go.mod go.sum ./
+RUN go mod download
+# Copiamos el código y compilamos
+COPY . .
+RUN go build -o main cmd/main.go
+
+# 2. Imagen ligera para ejecutar
+FROM alpine:latest
+WORKDIR /root/
+# Copiamos el ejecutable desde el compilador
+COPY --from=builder /app/main .
+# Exponemos el puerto de la API
+EXPOSE 8081
+# Ejecutamos
+CMD ["./main"]
